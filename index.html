@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asesoría Inmobiliaria Estratégica</title>
+    <title>Estrategia Inmobiliaria | Evaluación</title>
     
     <link rel="icon" href="favicon.png" type="image/png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 
     <script src="config.js"></script>
 
     <script>
-        // Carga Google Analytics solo si hay ID configurado
-        if (CONFIG.GOOGLE_ANALYTICS_ID) {
+        // Google Analytics
+        if (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_ANALYTICS_ID) {
             const script = document.createElement('script');
             script.async = true;
             script.src = `https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_ID}`;
@@ -29,8 +28,8 @@
             gtag('config', CONFIG.GOOGLE_ANALYTICS_ID);
         }
 
-        // Carga Meta Pixel solo si hay ID configurado
-        if (CONFIG.META_PIXEL_ID) {
+        // Meta Pixel
+        if (typeof CONFIG !== 'undefined' && CONFIG.META_PIXEL_ID) {
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
             n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -46,20 +45,20 @@
 </head>
 <body>
     
-    <div class="promo-bar">Evaluación de Perfil Profesional</div>
+    <div class="promo-bar">Evaluación de Perfil Financiero</div>
     
     <div class="hero-container">
         <img src="logo.png" alt="Logo Marca" class="brand-logo">
 
         <h1>Estrategia <span class="highlight">Inmobiliaria</span></h1>
-        <p>Logra tu objetivo de inversión con una estrategia financiera inteligente y personalizada.</p>
+        <p>Descubre tu capacidad real de inversión con una estrategia personalizada.</p>
         
         <form id="leadForm">
             <input type="hidden" id="origen_lead" name="origen_lead" value="web_organico">
 
             <div class="form-group">
                 <label for="nombre">Nombre Completo</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Ej: Tu Nombre" required autocomplete="name">
+                <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required autocomplete="name">
             </div>
             
             <div class="form-group">
@@ -69,15 +68,15 @@
             
             <div class="form-group">
                 <label for="telefono">WhatsApp</label>
-                <input type="tel" id="telefono" name="telefono" placeholder="Ej: 912345678" required pattern="[0-9]*" inputmode="numeric">
+                <input type="tel" id="telefono" name="telefono" placeholder="+56 9..." required pattern="[0-9+ ]*" inputmode="tel">
             </div>
 
             <button type="submit" id="submitBtn" class="btn-main">EVALUAR MIS OPCIONES</button>
         </form>
         
         <div id="loading" style="display:none; text-align:center; margin-top:20px; color:var(--brand-accent); font-weight:bold;">
-            <div style="font-size:30px; animation:spin 1s linear infinite;">↻</div>
-            Procesando solicitud...
+            <div style="font-size:30px; animation:spin 1s linear infinite; display:inline-block; margin-bottom:10px;">↻</div>
+            <br>Analizando perfil...
         </div>
         
         <p style="font-size: 0.85em; color: #888; margin-top: 25px;">
@@ -93,13 +92,27 @@
         const form = document.getElementById('leadForm');
         const btn = document.getElementById('submitBtn');
         const loading = document.getElementById('loading');
+        const phoneInput = document.getElementById('telefono');
 
+        // 1. FORMATO DE TELÉFONO (+56 9)
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Solo números
+            if (value.startsWith('56')) value = value.substring(2); // Evitar doble 56
+            if (value.startsWith('9')) value = value.substring(1); // Evitar doble 9
+            
+            // Reconstruir formato visual
+            if (value.length > 0) {
+                e.target.value = '+56 9 ' + value.substring(0, 8);
+            }
+        });
+
+        // 2. ENVÍO DEL FORMULARIO
         form.addEventListener('submit', async (e) => {
             e.preventDefault(); 
 
-            // Validar que exista la URL en config
-            if (!CONFIG.API_URL || CONFIG.API_URL.includes("PEGA_AQUI")) {
-                alert("Error de Configuración: Falta la API_URL en config.js");
+            // Validar Configuración
+            if (typeof CONFIG === 'undefined' || !CONFIG.API_URL) {
+                alert("Error crítico: Falta config.js o API_URL");
                 return;
             }
 
@@ -113,54 +126,31 @@
                 origen: document.getElementById('origen_lead').value 
             };
             
-            // Tracking de Eventos (Si están configurados)
+            // Disparar eventos de Marketing (si existen)
             if(typeof fbq !== 'undefined') fbq('track', 'Lead'); 
             if(typeof gtag !== 'undefined') gtag('event', 'generate_lead');
 
             try {
-                // Envío usando la URL del config.js
+                // Envío al Backend v7.0 (Broker OS)
                 await fetch(CONFIG.API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify(datos), 
-                    mode: 'no-cors', 
-                    headers: { 'Content-Type': 'application/json' } 
+                    // HEADER CLAVE PARA EVITAR ERRORES CORS EN LOCAL Y GITHUB
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
                 });
                 
-                // Redirección segura
-                setTimeout(() => { window.location.href = CONFIG.URL_GRACIAS; }, 1500);
+                // REDIRECCIÓN (RESTAURADA)
+                setTimeout(() => { window.location.href = "gracias.html"; }, 1000);
                 
             } catch (error) { 
-                console.error("Error:", error);
-                // Fallback en caso de error (redirecciona igual para no perder al cliente)
-                window.location.href = CONFIG.URL_GRACIAS; 
+                console.error("Error de conexión:", error);
+                // Fail-safe: Si falla la conexión, redirigimos igual a gracias
+                // (El lead puede haberse guardado aunque el navegador diera error de red)
+                window.location.href = "gracias.html"; 
             }
         });
     </script>
-    <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
-
-<script>
-    // Agrega esto en index.html para validar Leads
-    const rutInput = document.getElementById('rut_lead'); // Asegúrate de agregar ID al input si pides RUT
-    const phoneInput = document.getElementById('telefono');
     
-    if(phoneInput) {
-        phoneInput.addEventListener('input', function() {
-            // Misma lógica de formato +569
-            let num = this.value.replace(/\D/g, '');
-            if (num.length > 9) num = num.substring(0,9);
-            // Visualmente ayuda al usuario
-        });
-        
-        phoneInput.addEventListener('blur', function() {
-             let num = this.value.replace(/\D/g, '');
-             if(num.length < 8) {
-                 alert("El teléfono parece incompleto. Por favor revisa.");
-                 this.style.borderColor = "red";
-             } else {
-                 this.style.borderColor = "green";
-             }
-        });
-    }
-</script>
+    <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
 </body>
 </html>
