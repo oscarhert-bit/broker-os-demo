@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Registro Exitoso!</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="config.js"></script>
+
+    <script>
+        if (typeof CONFIG !== 'undefined') {
+            // GA4
+            if (CONFIG.GOOGLE_ANALYTICS_ID) {
+                const s = document.createElement('script'); s.async = true;
+                s.src = `https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_ID}`;
+                document.head.appendChild(s);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', CONFIG.GOOGLE_ANALYTICS_ID);
+                gtag('event', 'sign_up'); // Evento Conversión
+            }
+            // Meta Pixel
+            if (CONFIG.META_PIXEL_ID) {
+                !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+                n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', CONFIG.META_PIXEL_ID);
+                fbq('track', 'CompleteRegistration'); // Evento Conversión
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div class="hero-container" style="max-width: 600px; margin: 50px auto; text-align: center;">
+        <img src="logo.png" alt="Logo" class="brand-logo" style="max-height: 80px; margin-bottom: 30px;">
+
+        <div style="font-size: 60px; color: var(--brand-accent); margin-bottom: 10px;">✅</div>
+        
+        <h1>¡Primer Paso Completado!</h1>
+        
+        <p>Tus datos han ingresado correctamente a nuestro sistema inteligente.</p>
+
+        <div style="background-color: #f0f8ff; border-left: 4px solid var(--brand-accent); padding: 20px; text-align: left; margin: 30px 0; border-radius: 4px; color: #444;">
+            <strong>📩 ¿Qué sigue ahora?</strong><br>
+            En unos instantes recibirás un correo importante con el asunto: <br>
+            <em>"Definamos tu estrategia 🏠"</em>. <br><br>
+            Por favor ábrelo para agendar tu reunión de perfilamiento.
+        </div>
+
+        <p style="font-size: 0.9em; margin-bottom: 15px; color: #666;">¿Tienes una duda urgente?</p>
+        
+        <a id="btn-wsp" href="#" class="btn-main" style="background-color: #25D366; display: inline-flex; align-items: center; gap: 10px;">
+            <span>💬</span> Hablar por WhatsApp
+        </a>
+
+        <div style="margin-top: 40px;">
+            <a href="index.html" style="color: #999; text-decoration: none; font-size: 0.8em;">Volver al inicio</a>
+        </div>
+    </div>
+
+    <script>
+        // Configurar botón WhatsApp dinámicamente
+        const phone = CONFIG.WHATSAPP_PHONE || "56900000000";
+        const msg = encodeURIComponent(CONFIG.WHATSAPP_MESSAGE || "Hola, acabo de registrarme y tengo una duda.");
+        document.getElementById('btn-wsp').href = `https://wa.me/${phone}?text=${msg}`;
+    </script>
+</body>
+</html>
