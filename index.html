@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estrategia Inmobiliaria | Evaluación</title>
+    <title>Estrategia Inmobiliaria | Inicia tu Éxito</title>
     
     <link rel="icon" href="favicon.png" type="image/png">
     
@@ -15,72 +15,66 @@
     <script src="config.js"></script>
 
     <script>
-        // Google Analytics
-        if (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_ANALYTICS_ID) {
-            const script = document.createElement('script');
-            script.async = true;
-            script.src = `https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_ID}`;
-            document.head.appendChild(script);
-
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', CONFIG.GOOGLE_ANALYTICS_ID);
-        }
-
-        // Meta Pixel
-        if (typeof CONFIG !== 'undefined' && CONFIG.META_PIXEL_ID) {
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', CONFIG.META_PIXEL_ID);
-            fbq('track', 'PageView');
+        if (typeof CONFIG !== 'undefined') {
+            // Google Analytics
+            if (CONFIG.GOOGLE_ANALYTICS_ID) {
+                const s = document.createElement('script'); s.async = true;
+                s.src = `https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_ID}`;
+                document.head.appendChild(s);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date()); gtag('config', CONFIG.GOOGLE_ANALYTICS_ID);
+            }
+            // Meta Pixel
+            if (CONFIG.META_PIXEL_ID) {
+                !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', CONFIG.META_PIXEL_ID); fbq('track', 'PageView');
+            }
         }
     </script>
 </head>
 <body>
     
-    <div class="promo-bar">Evaluación de Perfil Financiero</div>
+    <div class="promo-bar">Tu Futuro Inmobiliario Comienza Hoy</div>
     
     <div class="hero-container">
         <img src="logo.png" alt="Logo Marca" class="brand-logo">
 
-        <h1>Estrategia <span class="highlight">Inmobiliaria</span></h1>
-        <p>Descubre tu capacidad real de inversión con una estrategia personalizada.</p>
+        <h1>Tu Estrategia <span class="highlight">Definitiva</span></h1>
+        
+        <p>No es "si puedes invertir". Es <strong>cómo vamos a lograrlo</strong> juntos.</p>
         
         <form id="leadForm">
             <input type="hidden" id="origen_lead" name="origen_lead" value="web_organico">
 
             <div class="form-group">
-                <label for="nombre">Nombre Completo</label>
+                <label for="nombre">Tu Nombre</label>
                 <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required autocomplete="name">
             </div>
             
             <div class="form-group">
-                <label for="email">Correo Electrónico</label>
+                <label for="email">Tu Mejor Correo</label>
                 <input type="email" id="email" name="email" placeholder="nombre@ejemplo.com" required autocomplete="email">
             </div>
             
             <div class="form-group">
-                <label for="telefono">WhatsApp</label>
+                <label for="telefono">WhatsApp (Para darte la noticia)</label>
                 <input type="tel" id="telefono" name="telefono" placeholder="+56 9..." required pattern="[0-9+ ]*" inputmode="tel">
             </div>
 
-            <button type="submit" id="submitBtn" class="btn-main">EVALUAR MIS OPCIONES</button>
+            <button type="submit" id="submitBtn" class="btn-main">ACTIVAR MI PLAN DE INVERSIÓN</button>
         </form>
         
         <div id="loading" style="display:none; text-align:center; margin-top:20px; color:var(--brand-accent); font-weight:bold;">
             <div style="font-size:30px; animation:spin 1s linear infinite; display:inline-block; margin-bottom:10px;">↻</div>
-            <br>Analizando perfil...
+            <br>¡Excelente decisión! Iniciando tu carpeta...
         </div>
         
         <p style="font-size: 0.85em; color: #888; margin-top: 25px;">
-            Tus datos están protegidos y serán usados solo para tu evaluación.
+            Estás a un paso de concretar tu meta. Datos 100% seguros.
         </p>
     </div>
 
@@ -94,13 +88,13 @@
         const loading = document.getElementById('loading');
         const phoneInput = document.getElementById('telefono');
 
-        // 1. FORMATO DE TELÉFONO (+56 9)
+        // 1. FORMATO INTELIGENTE DE TELÉFONO (+56 9)
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, ''); // Solo números
-            if (value.startsWith('56')) value = value.substring(2); // Evitar doble 56
-            if (value.startsWith('9')) value = value.substring(1); // Evitar doble 9
+            if (value.startsWith('56')) value = value.substring(2);
+            if (value.startsWith('9')) value = value.substring(1);
             
-            // Reconstruir formato visual
+            // Escribe visualmente bonito
             if (value.length > 0) {
                 e.target.value = '+56 9 ' + value.substring(0, 8);
             }
@@ -116,6 +110,7 @@
                 return;
             }
 
+            // Cambiar UI a "Cargando"
             btn.style.display = 'none'; 
             loading.style.display = 'block'; 
 
@@ -126,26 +121,25 @@
                 origen: document.getElementById('origen_lead').value 
             };
             
-            // Disparar eventos de Marketing (si existen)
+            // Disparar eventos de Marketing
             if(typeof fbq !== 'undefined') fbq('track', 'Lead'); 
             if(typeof gtag !== 'undefined') gtag('event', 'generate_lead');
 
             try {
-                // Envío al Backend v7.0 (Broker OS)
+                // Envío al Backend
                 await fetch(CONFIG.API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify(datos), 
-                    // HEADER CLAVE PARA EVITAR ERRORES CORS EN LOCAL Y GITHUB
+                    // HEADER CLAVE PARA EVITAR ERRORES CORS
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
                 });
                 
-                // REDIRECCIÓN (RESTAURADA)
+                // REDIRECCIÓN POSITIVA
                 setTimeout(() => { window.location.href = "gracias.html"; }, 1000);
                 
             } catch (error) { 
                 console.error("Error de conexión:", error);
-                // Fail-safe: Si falla la conexión, redirigimos igual a gracias
-                // (El lead puede haberse guardado aunque el navegador diera error de red)
+                // Si falla la red, redirigimos igual para no romper la experiencia
                 window.location.href = "gracias.html"; 
             }
         });
