@@ -6,31 +6,25 @@
     <title>Bóveda Digital | Oscar Hernández</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    
     <script src="config.js"></script>
 
     <style>
-        .step-container { display: none; animation: fadeIn 0.5s; }
-        .step-container.active { display: block; }
-        .doc-list li { background: #f8f9fa; margin: 5px 0; padding: 12px; border-radius: 8px; border-left: 4px solid #cbd5e1; font-size: 0.9em; display: flex; align-items: center; gap: 10px; }
+        .step-container { display: none; }
+        .step-container.active { display: block; animation: fadeIn 0.5s; }
+        .section-title { color: var(--brand-accent); border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 20px; margin-bottom: 15px; font-size: 1.1em; font-weight: bold; }
+        .sub-group { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; }
+        .doc-list li { padding: 10px; background: #fff; margin-bottom: 5px; border-radius: 5px; font-size: 0.9em; display: flex; align-items: center; gap: 10px; border-left: 3px solid #ccc; }
         .doc-list li.required { border-left-color: var(--brand-accent); }
-        .money-input { font-weight: bold; color: #333; }
-        .summary-box { background: #e0f7fa; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; border: 1px solid #b2ebf2; }
-        
-        /* Validaciones */
-        input.invalid { border-color: red !important; background-color: #fff0f0; }
-        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 99; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 99; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div id="loadingOverlay" class="loading-overlay">
-        <div style="font-size: 40px; margin-bottom: 20px;">🔒</div>
-        <h2 style="color: var(--brand-dark);">Encriptando y Subiendo...</h2>
-        <p>Por favor espera, esto puede tomar unos segundos.</p>
-        <p style="font-size: 0.8em; color: #888;">No cierres la ventana.</p>
+        <div style="font-size: 40px; margin-bottom: 20px;">🏦</div>
+        <h2 style="color: #2B2E34;">Generando Estado de Situación...</h2>
+        <p>Estamos procesando tus datos y encriptando tus documentos.</p>
     </div>
 
     <div class="promo-bar">Carpeta de Validación Bancaria</div>
@@ -38,38 +32,28 @@
     <div class="container-upload">
         <img src="logo.png" alt="Logo" class="brand-logo">
         
-        <div style="display:flex; justify-content:space-between; margin-bottom:30px; font-size:0.8em; color:#aaa; text-transform:uppercase; font-weight:bold; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-            <span id="prog-1" style="color:var(--brand-accent);">1. Perfil</span>
-            <span id="prog-2">2. Finanzas</span>
-            <span id="prog-3">3. Documentos</span>
-        </div>
-
         <form id="mainForm">
-            
             <div id="step-1" class="step-container active">
-                <h2>¿Cuál es tu situación laboral?</h2>
-                <p>Esto define qué documentos nos pedirán los bancos.</p>
-                
+                <h2>1. Tu Perfil Laboral</h2>
+                <p>Selecciona tu situación actual para configurar los requisitos.</p>
                 <div class="profile-selector">
-                    <label><input type="radio" name="perfil" value="dependiente" onchange="setPerfil('dependiente')"><span>Dependiente (Contrato)</span></label>
-                    <label><input type="radio" name="perfil" value="independiente" onchange="setPerfil('independiente')"><span>Independiente (Boletas)</span></label>
-                    <label><input type="radio" name="perfil" value="empresa" onchange="setPerfil('empresa')"><span>Dueño de Empresa</span></label>
-                    <label><input type="radio" name="perfil" value="otro" onchange="setPerfil('otro')"><span>Rentista / Otro</span></label>
+                    <label><input type="radio" name="perfil" value="dependiente" onchange="setPerfil('dependiente')"><span>Dependiente</span></label>
+                    <label><input type="radio" name="perfil" value="independiente" onchange="setPerfil('independiente')"><span>Independiente</span></label>
+                    <label><input type="radio" name="perfil" value="empresa" onchange="setPerfil('empresa')"><span>Dueño Empresa</span></label>
+                    <label><input type="radio" name="perfil" value="otro" onchange="setPerfil('otro')"><span>Otro</span></label>
                 </div>
-                
-                <div class="form-group" style="margin-top:25px;">
+                <div class="form-group" style="margin-top:20px;">
                     <label>Confirma tu Email</label>
-                    <input type="email" id="email_cliente" placeholder="El mismo que usaste antes" required>
+                    <input type="email" id="email_cliente" required>
                 </div>
-                
                 <button type="button" class="btn-main" onclick="nextStep(2)">Continuar</button>
             </div>
 
             <div id="step-2" class="step-container">
-                <h2>Tu Foto Financiera</h2>
-                <p>Completa esto para generar tu Estado de Situación automáticamente.</p>
+                <h2>2. Antecedentes Financieros</h2>
+                <p style="font-size:0.9em; color:#666;">Completa con el mayor detalle posible. Esto genera tu presentación al banco.</p>
 
-                <h3>👤 Tus Datos</h3>
+                <div class="section-title">👤 Datos Personales</div>
                 <div class="form-grid">
                     <div class="input-group"><label>Nombre Completo</label><input type="text" name="titular_nombre" required></div>
                     <div class="input-group"><label>RUT</label><input type="text" name="titular_rut" id="rut" required oninput="checkRut(this)"></div>
@@ -77,45 +61,69 @@
                     <div class="input-group"><label>Estado Civil</label>
                         <select name="titular_civil">
                             <option value="Soltero">Soltero/a</option>
-                            <option value="Casado_Soc_Conyugal">Casado (Soc. Conyugal)</option>
-                            <option value="Casado_Sep_Bienes">Casado (Sep. Bienes)</option>
+                            <option value="Casado Soc. Conyugal">Casado (Soc. Conyugal)</option>
+                            <option value="Casado Sep. Bienes">Casado (Sep. Bienes)</option>
                             <option value="Viudo">Viudo/a</option>
+                            <option value="Divorciado">Divorciado/a</option>
                         </select>
                     </div>
                 </div>
-                
                 <div class="form-grid">
-                    <div class="input-group"><label>Dirección</label><input type="text" name="titular_direccion" required></div>
+                    <div class="input-group"><label>Profesión</label><input type="text" name="titular_profesion"></div>
+                    <div class="input-group"><label>Dirección Particular</label><input type="text" name="titular_direccion" required></div>
                     <div class="input-group"><label>Comuna</label><input type="text" name="titular_comuna" required></div>
                 </div>
 
-                <h3>💰 ¿Qué tienes hoy? (Activos)</h3>
-                <p style="font-size:0.8em; color:#666;">Aproximado. Si no tienes, pon 0.</p>
-                <div class="form-grid">
-                    <div class="input-group"><label>Propiedades (Valor total)</label><input type="number" class="money-input" name="activos_propiedades" placeholder="$" oninput="calcTotales()"></div>
-                    <div class="input-group"><label>Vehículos</label><input type="number" class="money-input" name="activos_vehiculos" placeholder="$" oninput="calcTotales()"></div>
-                    <div class="input-group"><label>Ahorros / Inversiones</label><input type="number" class="money-input" name="activos_inversiones" placeholder="$" oninput="calcTotales()"></div>
-                </div>
-
-                <h3>💳 ¿Qué debes? (Pasivos)</h3>
-                <div class="form-grid">
-                    <div class="input-group"><label>Deuda Hipotecaria (Saldo)</label><input type="number" class="money-input" name="pasivos_hipotecario_saldo" placeholder="$" oninput="calcTotales()"></div>
-                    <div class="input-group"><label>Créditos Consumo (Saldo)</label><input type="number" class="money-input" name="pasivos_consumo_saldo" placeholder="$" oninput="calcTotales()"></div>
-                    <div class="input-group"><label>Cupo Usado Tarjetas</label><input type="number" class="money-input" name="pasivos_tarjetas_saldo" placeholder="$" oninput="calcTotales()"></div>
-                </div>
+                <div class="section-title">🏠 Activos (Propiedades y Vehículos)</div>
                 
-                <input type="hidden" name="total_activos" id="total_activos">
-                <input type="hidden" name="total_pasivos" id="total_pasivos">
-
-                <div class="summary-box">
-                    Patrimonio Estimado: <strong id="patrimonio_display" style="color:var(--brand-accent); font-size:1.2em;">$ 0</strong>
+                <div class="sub-group">
+                    <label><strong>Propiedad 1 (Si tienes)</strong></label>
+                    <div class="form-grid">
+                        <div class="input-group"><label>Dirección / Comuna</label><input type="text" name="prop1_direccion" placeholder="Ej: Av. Perú, Recoleta"></div>
+                        <div class="input-group"><label>Valor Comercial ($)</label><input type="number" name="prop1_valor" placeholder="$"></div>
+                        <div class="input-group"><label>¿Tiene Hipoteca?</label><select name="prop1_banco"><option value="">No / Pagada</option><option value="Santander">Santander</option><option value="Chile">Chile</option><option value="Estado">Estado</option><option value="Scotiabank">Scotiabank</option><option value="Bci">Bci</option><option value="Itau">Itaú</option><option value="Otro">Otro</option></select></div>
+                        <div class="input-group"><label>Deuda por Pagar ($)</label><input type="number" name="prop1_deuda" placeholder="$"></div>
+                        <div class="input-group"><label>Dividendo Mensual ($)</label><input type="number" name="prop1_cuota" placeholder="$"></div>
+                    </div>
                 </div>
 
-                <h3>💵 Ingresos Líquidos Mensuales</h3>
+                <div class="sub-group">
+                    <label><strong>Vehículo (Si tienes)</strong></label>
+                    <div class="form-grid">
+                        <div class="input-group"><label>Marca / Modelo / Año</label><input type="text" name="auto1_modelo" placeholder="Ej: Toyota Rav4 2019"></div>
+                        <div class="input-group"><label>Valor Comercial ($)</label><input type="number" name="auto1_valor" placeholder="$"></div>
+                    </div>
+                </div>
+
                 <div class="form-grid">
-                    <div class="input-group"><label>Sueldo / Retiro Fijo</label><input type="number" name="ingresos_fijos" placeholder="$"></div>
-                    <div class="input-group"><label>Bonos / Variable</label><input type="number" name="ingresos_variables" placeholder="$"></div>
-                    <div class="input-group"><label>Otros (Arriendos, etc)</label><input type="number" name="ingresos_otros" placeholder="$"></div>
+                    <div class="input-group"><label>Ahorros / Inversiones ($)</label><input type="number" name="activos_inversiones" placeholder="DAP, Fondos, Acciones"></div>
+                </div>
+
+                <div class="section-title">💳 Pasivos (Otras Deudas)</div>
+                <p style="font-size:0.8em; color:#666; margin-bottom:10px;">Indica Créditos de Consumo o Tarjetas con deuda.</p>
+                
+                <div class="sub-group">
+                    <div class="form-grid">
+                        <div class="input-group"><label>Banco / Institución</label><input type="text" name="pasivo1_inst" placeholder="Ej: Falabella"></div>
+                        <div class="input-group"><label>Tipo Deuda</label><select name="pasivo1_tipo"><option value="Consumo">Consumo</option><option value="Tarjeta">Tarjeta Crédito</option><option value="Automotriz">Automotriz</option></select></div>
+                        <div class="input-group"><label>Deuda Total ($)</label><input type="number" name="pasivo1_total" placeholder="$"></div>
+                        <div class="input-group"><label>Cuota Mensual ($)</label><input type="number" name="pasivo1_cuota" placeholder="$"></div>
+                    </div>
+                </div>
+                <div class="sub-group">
+                    <div class="form-grid">
+                        <div class="input-group"><label>Banco / Institución</label><input type="text" name="pasivo2_inst" placeholder="Ej: Cencosud"></div>
+                        <div class="input-group"><label>Tipo Deuda</label><select name="pasivo2_tipo"><option value="Consumo">Consumo</option><option value="Tarjeta">Tarjeta Crédito</option></select></div>
+                        <div class="input-group"><label>Deuda Total ($)</label><input type="number" name="pasivo2_total" placeholder="$"></div>
+                        <div class="input-group"><label>Cuota Mensual ($)</label><input type="number" name="pasivo2_cuota" placeholder="$"></div>
+                    </div>
+                </div>
+
+                <div class="section-title">💵 Ingresos Mensuales Líquidos</div>
+                <div class="form-grid">
+                    <div class="input-group"><label>Sueldo Fijo / Retiro</label><input type="number" name="ingreso_fijo" placeholder="$"></div>
+                    <div class="input-group"><label>Bonos / Comisiones (Promedio)</label><input type="number" name="ingreso_variable" placeholder="$"></div>
+                    <div class="input-group"><label>Arriendos Recibidos</label><input type="number" name="ingreso_arriendo" placeholder="$"></div>
                 </div>
 
                 <div class="form-navigation-buttons">
@@ -125,50 +133,40 @@
             </div>
 
             <div id="step-3" class="step-container">
-                <h2>Documentación Requerida</h2>
-                <p>Para el perfil <strong><span id="perfil-label"></span></strong> necesitamos:</p>
+                <h2>3. Respaldo Documental</h2>
+                <p>Para el perfil <strong><span id="perfil-label"></span></strong>:</p>
                 
-                <ul class="checklist doc-list" id="dynamic-doc-list">
-                    </ul>
+                <ul class="checklist doc-list" id="dynamic-doc-list"></ul>
 
-                <div class="input-group" style="margin-top:30px; border:2px dashed #00B2A9; padding:20px; text-align:center; border-radius:10px; background:rgba(0,178,169,0.05);">
+                <div class="input-group" style="margin-top:30px; border:2px dashed #00B2A9; padding:30px; text-align:center; border-radius:10px; background:rgba(0,178,169,0.05);">
                     <label for="fileInput" style="cursor:pointer; width:100%; display:block;">
-                        <strong style="font-size:1.2em;">📎 SELECCIONAR ARCHIVOS</strong><br>
-                        <span style="font-size:0.9em; color:#666;">Puedes seleccionar varios PDF o Fotos a la vez.</span>
+                        <strong style="font-size:1.2em;">📎 ADJUNTAR ARCHIVOS</strong><br>
+                        <span style="font-size:0.9em; color:#666;">Liquidaciones, Cartolas, Certificados, etc.</span>
                     </label>
                     <input type="file" id="fileInput" multiple style="display:none;" onchange="showFiles()">
                 </div>
-                <div id="fileList" style="margin-top:15px; font-size:0.9em; text-align:left;"></div>
+                <div id="fileList" style="margin-top:15px; font-size:0.9em;"></div>
 
                 <div class="form-navigation-buttons">
                     <button type="button" class="form-nav-btn secondary" onclick="nextStep(2)">Atrás</button>
-                    <button type="submit" id="btnSubmit" class="btn-main" style="background:var(--brand-dark);">ENVIAR CARPETA SEGURA</button>
+                    <button type="submit" id="btnSubmit" class="btn-main" style="background:var(--brand-dark);">ENVIAR CARPETA</button>
                 </div>
             </div>
-
         </form>
     </div>
 
-    <footer>
-        <p>&copy; <script>document.write(new Date().getFullYear())</script> Todos los derechos reservados.</p>
-    </footer>
+    <footer><p>© 2025 Oscar Hernández. Todos los derechos reservados.</p></footer>
 
     <script>
-        // 1. OBTENER API URL DESDE CONFIG
         const API_URL = CONFIG.API_URL; 
-
-        // 2. CONFIGURACIÓN DE DOCUMENTOS
         const REQUISITOS = {
-            dependiente: ["Copia Cédula (Ambos lados)","3 últimas liquidaciones (Renta Fija) o 6 (Variable)","Certificado AFP (12 o 24 meses)","Certificado CMF (Deudas)","Comprobante Domicilio"],
-            independiente: ["Copia Cédula","Carpeta Tributaria","F22 (2 años)","Boletas (últimos 6 meses)","Certificado CMF","Comprobante Domicilio"],
+            dependiente: ["Cédula Identidad (Ambos lados)","3 últimas liquidaciones (Fija) o 6 (Variable)","Certificado AFP (24 meses)","Certificado CMF (Deudas)","Comprobante Domicilio"],
+            independiente: ["Cédula Identidad","Carpeta Tributaria","F22 (2 años)","Boletas (6 meses)","Certificado CMF","Comprobante Domicilio"],
             empresa: ["Cédula Socio","Carpeta Tributaria Empresa","Balances (2 años)","F22 Empresa y Socio","Certificado CMF","Malla Societaria"],
             otro: ["Cédula Identidad","Acreditación de Ingresos","Certificado CMF"]
         };
 
-        // 3. INICIALIZACIÓN
         let currentPerfil = 'dependiente';
-        
-        // Auto-llenar email si viene del correo
         const params = new URLSearchParams(window.location.search);
         if(params.get('email')) document.getElementById('email_cliente').value = params.get('email');
 
@@ -181,73 +179,39 @@
         function updateChecklist() {
             const list = document.getElementById('dynamic-doc-list');
             list.innerHTML = "";
-            REQUISITOS[currentPerfil].forEach(req => {
-                list.innerHTML += `<li class="required"><span>📄 ${req}</span></li>`;
-            });
-            list.innerHTML += `<li style="border-left-color:green;"><span>✅ <strong>Estado de Situación:</strong> Se genera automático con tus datos.</span></li>`;
+            REQUISITOS[currentPerfil].forEach(req => list.innerHTML += `<li class="required">📄 ${req}</li>`);
+            list.innerHTML += `<li style="border-left-color:green;">✅ <strong>Estado de Situación:</strong> Se generará con los datos ingresados.</li>`;
         }
 
         function nextStep(n) {
-            // Validaciones básicas
-            if (n === 2 && !document.getElementById('email_cliente').value) { alert("Por favor confirma tu email."); return; }
-            if (n === 3) {
-                if(!document.getElementById('rut').value) { alert("El RUT es obligatorio."); return; }
-            }
-
+            if (n === 2 && !document.getElementById('email_cliente').value) { alert("Email obligatorio."); return; }
+            if (n === 3 && !document.getElementById('rut').value) { alert("RUT obligatorio."); return; }
             document.querySelectorAll('.step-container').forEach(s => s.classList.remove('active'));
             document.getElementById(`step-${n}`).classList.add('active');
-            
-            for(let i=1; i<=3; i++) {
-                document.getElementById(`prog-${i}`).style.color = (n >= i) ? 'var(--brand-accent)' : '#aaa';
-            }
         }
 
-        // RUT Formatter
         function checkRut(rut) {
             let valor = rut.value.replace(/[^0-9kK]/g, '');
-            if (valor.length > 1) {
-                rut.value = valor.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '-' + valor.slice(-1).toUpperCase();
-            }
-        }
-
-        // Cálculos
-        function calcTotales() {
-            const getVal = (name) => Number(document.querySelector(`[name="${name}"]`).value) || 0;
-            const activos = getVal('activos_propiedades') + getVal('activos_vehiculos') + getVal('activos_inversiones');
-            const pasivos = getVal('pasivos_hipotecario_saldo') + getVal('pasivos_consumo_saldo') + getVal('pasivos_tarjetas_saldo');
-            
-            document.getElementById('total_activos').value = activos;
-            document.getElementById('total_pasivos').value = pasivos;
-            document.getElementById('patrimonio_display').innerText = "$ " + (activos - pasivos).toLocaleString('es-CL');
+            if (valor.length > 1) { rut.value = valor.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '-' + valor.slice(-1).toUpperCase(); }
         }
 
         function showFiles() {
             const input = document.getElementById('fileInput');
             const list = document.getElementById('fileList');
-            if (input.files.length > 0) {
-                list.innerHTML = "<strong>Archivos seleccionados:</strong><br>" + Array.from(input.files).map(f => `📄 ${f.name}`).join('<br>');
-            }
+            if (input.files.length > 0) list.innerHTML = "<strong>Archivos:</strong><br>" + Array.from(input.files).map(f => `📎 ${f.name}`).join('<br>');
         }
 
-        // --- ENVÍO AL SERVIDOR ---
         document.getElementById('mainForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if(document.getElementById('fileInput').files.length === 0) { alert("Adjunta documentos."); return; }
             
-            if(document.getElementById('fileInput').files.length === 0) {
-                alert("Por favor selecciona tus documentos antes de enviar.");
-                return;
-            }
-
-            // Mostrar Pantalla de Carga
             document.getElementById('loadingOverlay').style.display = 'flex';
 
             try {
-                // 1. Leer Formulario
                 const formData = new FormData(document.getElementById('mainForm'));
                 const objData = {};
                 formData.forEach((val, key) => objData[key] = val);
 
-                // 2. Leer Archivos (Base64)
                 const files = await Promise.all(Array.from(document.getElementById('fileInput').files).map(f => {
                     return new Promise(resolve => {
                         const reader = new FileReader();
@@ -256,46 +220,19 @@
                     });
                 }));
 
-                // 3. Payload Final
-                const payload = {
-                    action: "upload_files", // CLAVE PARA QUE EL BACKEND ENTIENDA
-                    email: document.getElementById('email_cliente').value,
-                    perfil: currentPerfil,
-                    formData: objData,
-                    files: files
-                };
+                const payload = { action: "upload_files", email: document.getElementById('email_cliente').value, perfil: currentPerfil, formData: objData, files: files };
 
-                // 4. Enviar
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                });
-                
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    document.querySelector('.container-upload').innerHTML = `
-                        <div style="text-align:center; padding:40px;">
-                            <h1 style="color:green; font-size:3em; margin-bottom:10px;">✅</h1>
-                            <h2 style="color:#2B2E34;">¡Carpeta Recibida!</h2>
-                            <p style="color:#555;">Tus antecedentes están seguros con nosotros.</p>
-                            <p>Te acabo de enviar un correo de confirmación. Comenzaremos el análisis de inmediato.</p>
-                        </div>
-                    `;
-                } else {
-                    throw new Error(result.message);
-                }
+                    document.querySelector('.container-upload').innerHTML = `<div style="text-align:center; padding:40px;"><h1 style="color:green;font-size:3em;">✅</h1><h2>Recibido</h2><p>Tus antecedentes están en evaluación.</p></div>`;
+                } else { throw new Error(result.message); }
 
-            } catch (error) {
-                console.error(error);
-                alert("Hubo un error al subir los archivos. Por favor intenta de nuevo o contáctame por WhatsApp.");
-            } finally {
-                document.getElementById('loadingOverlay').style.display = 'none';
-            }
+            } catch (error) { alert("Error al subir. Revisa tu conexión."); } 
+            finally { document.getElementById('loadingOverlay').style.display = 'none'; }
         });
 
-        // Iniciar
         updateChecklist();
     </script>
 </body>
