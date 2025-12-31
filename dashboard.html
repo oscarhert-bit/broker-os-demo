@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Broker OS | Secure Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
+    <style>
+        body { background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .kanban-col { min-height: 60vh; background: #e2e8f0; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .card { background: white; padding: 16px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: grab; border-left: 5px solid #cbd5e1; touch-action: none; }
+        .card:active { transform: scale(0.98); }
+        
+        /* Colores de Estado */
+        .status-new { border-left-color: #3b82f6; }
+        .status-docs { border-left-color: #f59e0b; }
+        .status-closed { border-left-color: #10b981; }
+
+        /* Login Overlay */
+        #login-screen { position: fixed; inset: 0; background: #0f172a; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .pin-input { background: transparent; border-bottom: 2px solid #334155; color: white; font-size: 2rem; text-align: center; width: 200px; outline: none; letter-spacing: 10px; margin-bottom: 2rem; }
+        .pin-input:focus { border-color: #2dd4bf; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <div id="login-screen">
+        <div class="mb-8 text-center">
+            <div class="w-16 h-16 bg-teal-500 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold mb-4 shadow-lg shadow-teal-500/50">B</div>
+            <h1 class="text-2xl font-bold tracking-widest">BROKER OS</h1>
+            <p class="text-slate-400 text-sm mt-1">Acceso Restringido</p>
+        </div>
+        <input type="password" id="pin" class="pin-input" placeholder="••••" maxlength="4" inputmode="numeric">
+        <button onclick="checkPin()" class="bg-teal-600 hover:bg-teal-500 text-white px-8 py-3 rounded-full font-bold transition shadow-lg w-64">DESBLOQUEAR</button>
+        <p id="error-msg" class="text-red-500 mt-4 text-sm hidden">PIN Incorrecto</p>
+    </div>
+
+    <div id="app-content" class="flex-1 flex flex-col hidden h-full">
+        <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg z-10">
+            <h1 class="font-bold text-lg tracking-wide flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> BROKER OS
+            </h1>
+            <button onclick="cargarLeads()" class="bg-slate-700 p-2 rounded-full active:bg-slate-600">🔄</button>
+        </nav>
+
+        <div class="flex-1 overflow-x-auto p-4 flex gap-4 snap-x snap-mandatory">
+            
+            <div class="w-80 flex-shrink-0 snap-center">
+                <h3 class="font-bold text-slate-700 mb-3 flex justify-between items-center sticky top-0 bg-[#f1f5f9] py-2 z-10">
+                    🆕 NUEVOS <span id="count-new" class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-full">0</span>
+                </h3>
+                <div id="col-new" class="kanban-col" ondrop="drop(event, '🆕 Nuevo Lead')" ondragover="allowDrop(event)"></div>
+            </div>
+
+            <div class="w-80 flex-shrink-0 snap-center">
+                <h3 class="font-bold text-blue-700 mb-3 flex justify-between items-center sticky top-0 bg-[#f1f5f9] py-2 z-10">
+                    📅 EN AGENDA
+                </h3>
+                <div id="col-agenda" class="kanban-col bg-blue-50" ondrop="drop(event, '📅 Reunión Agendada')" ondragover="allowDrop(event)"></div>
+            </div>
+
+            <div class="w-80 flex-shrink-0 snap-center">
+                <h3 class="font-bold text-orange-700 mb-3 flex justify-between items-center sticky top-0 bg-[#f1f5f9] py-2 z-10">
+                    📂 DOCS
+                    <span class="text-[9px] bg-orange-100 text-orange-600 px-1 rounded border border-orange-200 uppercase font-bold tracking-tighter">⚡ Auto-Email</span>
+                </h3>
+                <div id="col-docs" class="kanban-col bg-orange-50 border-2 border-orange-200 border-dashed" ondrop="drop(event, 'Solicitar Documentos')" ondragover="allowDrop(event)"></div>
+            </div>
+
+            <div class="w-80 flex-shrink-0 snap-center">
+                <h3 class="font-bold text-green-700 mb-3 sticky top-0 bg-[#f1f5f9] py-2 z-10">🤑 CIERRE</h3>
+                <div id="col-closed" class="kanban-col bg-green-50" ondrop="drop(event, 'Cierre')" ondragover="allowDrop(event)"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SEGURIDAD SIMPLE ---
+        // Cambia este PIN antes de subirlo
+        const SECRET_PIN = "2025"; 
+
+        function checkPin() {
+            const input = document.getElementById('pin').value;
+            if(input === SECRET_PIN) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').classList.remove('hidden');
+                cargarLeads(); // Carga datos SOLO después del PIN
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+                document.getElementById('pin').value = '';
+                navigator.vibrate(200); // Feedback táctil si falla
+            }
+        }
+        
+        // Soporte tecla Enter en PIN
+        document.getElementById('pin').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkPin();
+        });
+
+        // --- LÓGICA DE NEGOCIO ---
+        async function cargarLeads() {
+            try {
+                const res = await fetch(`${CONFIG.API_URL}?action=getLeads`);
+                const leads = await res.json();
+                
+                // Limpiar
+                ['col-new', 'col-agenda', 'col-docs', 'col-closed'].forEach(id => document.getElementById(id).innerHTML = '');
+
+                leads.forEach(lead => crearTarjeta(lead));
+                document.getElementById('count-new').innerText = leads.filter(l => l.Estado.includes('Nuevo')).length;
+
+            } catch (e) {
+                alert("Error de conexión. Verifica tu internet.");
+            }
+        }
+
+        function crearTarjeta(lead) {
+            const card = document.createElement('div');
+            const estado = lead.Estado ? lead.Estado.toLowerCase() : '';
+            
+            let target = 'col-new';
+            let style = 'status-new';
+
+            if (estado.includes('agendada')) { target = 'col-agenda'; }
+            else if (estado.includes('solicitar')) { target = 'col-docs'; style = 'status-docs'; }
+            else if (estado.includes('cierre')) { target = 'col-closed'; style = 'status-closed'; }
+
+            card.className = `card ${style}`;
+            card.draggable = true;
+            card.id = lead.id;
+            card.ondragstart = (e) => e.dataTransfer.setData("text", lead.id);
+
+            // Contenido Inteligente
+            card.innerHTML = `
+                <div class="flex justify-between mb-1">
+                    <strong class="text-slate-900 text-lg">${lead.Nombre.split(' ')[0]}</strong>
+                    <span class="text-xs font-mono text-slate-400">#${lead.id.toString().slice(-3)}</span>
+                </div>
+                
+                ${lead.Probabilidad ? `
+                <div class="bg-indigo-50 border-l-2 border-indigo-400 p-2 rounded-r text-xs mb-3">
+                    <div class="flex justify-between font-bold text-indigo-800 mb-1">
+                        <span>🤖 Gemini:</span> <span>${lead.Probabilidad}</span>
+                    </div>
+                    <p class="text-slate-600 leading-tight">"${lead.Perfil}"</p>
+                </div>
+                ` : ''}
+                
+                <div class="flex gap-2 mt-2">
+                    <a href="https://wa.me/${lead.Telefono}?text=${encodeURIComponent(lead.Rompehielo || 'Hola, hablemos de tu inversión.')}" target="_blank" class="flex-1 bg-green-500 text-white text-center text-sm py-2 rounded-lg font-bold shadow-sm active:bg-green-600 transition">
+                        WhatsApp
+                    </a>
+                </div>
+            `;
+            
+            document.getElementById(target).appendChild(card);
+        }
+
+        function allowDrop(ev) { ev.preventDefault(); }
+
+        async function drop(ev, nuevoEstado) {
+            ev.preventDefault();
+            const id = ev.dataTransfer.getData("text");
+            const card = document.getElementById(id);
+            
+            ev.target.closest('.kanban-col').appendChild(card);
+            card.style.opacity = "0.5";
+
+            await fetch(CONFIG.API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "updateState", rowId: id, newState: nuevoEstado }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+
+            card.style.opacity = "1";
+            if (nuevoEstado.includes("Solicitar")) navigator.vibrate([100,50,100]); // Vibración de éxito
+        }
+    </script>
+</body>
+</html>

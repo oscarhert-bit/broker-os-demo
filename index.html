@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesoría Inmobiliaria Estratégica</title>
+    
+    <link rel="icon" href="favicon.png" type="image/png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <script src="config.js"></script>
+
+    <script>
+        // Carga Google Analytics solo si hay ID configurado
+        if (CONFIG.GOOGLE_ANALYTICS_ID) {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_ID}`;
+            document.head.appendChild(script);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', CONFIG.GOOGLE_ANALYTICS_ID);
+        }
+
+        // Carga Meta Pixel solo si hay ID configurado
+        if (CONFIG.META_PIXEL_ID) {
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', CONFIG.META_PIXEL_ID);
+            fbq('track', 'PageView');
+        }
+    </script>
+</head>
+<body>
+    
+    <div class="promo-bar">Evaluación de Perfil Profesional</div>
+    
+    <div class="hero-container">
+        <img src="logo.png" alt="Logo Marca" class="brand-logo">
+
+        <h1>Estrategia <span class="highlight">Inmobiliaria</span></h1>
+        <p>Logra tu objetivo de inversión con una estrategia financiera inteligente y personalizada.</p>
+        
+        <form id="leadForm">
+            <input type="hidden" id="origen_lead" name="origen_lead" value="web_organico">
+
+            <div class="form-group">
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ej: Tu Nombre" required autocomplete="name">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" placeholder="nombre@ejemplo.com" required autocomplete="email">
+            </div>
+            
+            <div class="form-group">
+                <label for="telefono">WhatsApp</label>
+                <input type="tel" id="telefono" name="telefono" placeholder="Ej: 912345678" required pattern="[0-9]*" inputmode="numeric">
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-main">EVALUAR MIS OPCIONES</button>
+        </form>
+        
+        <div id="loading" style="display:none; text-align:center; margin-top:20px; color:var(--brand-accent); font-weight:bold;">
+            <div style="font-size:30px; animation:spin 1s linear infinite;">↻</div>
+            Procesando solicitud...
+        </div>
+        
+        <p style="font-size: 0.85em; color: #888; margin-top: 25px;">
+            Tus datos están protegidos y serán usados solo para tu evaluación.
+        </p>
+    </div>
+
+    <footer>
+        <p>&copy; <script>document.write(new Date().getFullYear())</script> Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        const form = document.getElementById('leadForm');
+        const btn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+
+            // Validar que exista la URL en config
+            if (!CONFIG.API_URL || CONFIG.API_URL.includes("PEGA_AQUI")) {
+                alert("Error de Configuración: Falta la API_URL en config.js");
+                return;
+            }
+
+            btn.style.display = 'none'; 
+            loading.style.display = 'block'; 
+
+            const datos = { 
+                nombre: document.getElementById('nombre').value, 
+                email: document.getElementById('email').value, 
+                telefono: document.getElementById('telefono').value,
+                origen: document.getElementById('origen_lead').value 
+            };
+            
+            // Tracking de Eventos (Si están configurados)
+            if(typeof fbq !== 'undefined') fbq('track', 'Lead'); 
+            if(typeof gtag !== 'undefined') gtag('event', 'generate_lead');
+
+            try {
+                // Envío usando la URL del config.js
+                await fetch(CONFIG.API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify(datos), 
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' } 
+                });
+                
+                // Redirección segura
+                setTimeout(() => { window.location.href = CONFIG.URL_GRACIAS; }, 1500);
+                
+            } catch (error) { 
+                console.error("Error:", error);
+                // Fallback en caso de error (redirecciona igual para no perder al cliente)
+                window.location.href = CONFIG.URL_GRACIAS; 
+            }
+        });
+    </script>
+    <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+
+<script>
+    // Agrega esto en index.html para validar Leads
+    const rutInput = document.getElementById('rut_lead'); // Asegúrate de agregar ID al input si pides RUT
+    const phoneInput = document.getElementById('telefono');
+    
+    if(phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            // Misma lógica de formato +569
+            let num = this.value.replace(/\D/g, '');
+            if (num.length > 9) num = num.substring(0,9);
+            // Visualmente ayuda al usuario
+        });
+        
+        phoneInput.addEventListener('blur', function() {
+             let num = this.value.replace(/\D/g, '');
+             if(num.length < 8) {
+                 alert("El teléfono parece incompleto. Por favor revisa.");
+                 this.style.borderColor = "red";
+             } else {
+                 this.style.borderColor = "green";
+             }
+        });
+    }
+</script>
+</body>
+</html>
