@@ -17,8 +17,21 @@
             margin: 20px 0 15px 0; font-weight: bold; color: #2B2E34; border-radius: 0 8px 8px 0;
         }
 
-        .dynamic-field { display: none; } /* Oculto por defecto */
+        /* ESTILOS NUEVOS PARA EL CHECKLIST DE DOCUMENTOS */
+        .doc-guide { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9em; border: 1px solid #ffeeba; }
         
+        .requirements-list { list-style: none; padding: 0; margin: 0; }
+        .requirements-list li { 
+            background: white; border: 1px solid #e2e8f0; padding: 12px 15px; 
+            margin-bottom: 8px; border-radius: 8px; display: flex; align-items: flex-start; gap: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .requirements-list li .icon { font-size: 1.2em; color: var(--brand-accent); }
+        .requirements-list li .text { flex: 1; }
+        .requirements-list li .title { font-weight: bold; display: block; color: #333; }
+        .requirements-list li .desc { font-size: 0.85em; color: #666; }
+
+        .dynamic-field { display: none; }
         .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 99; display: none; flex-direction: column; align-items: center; justify-content: center; }
         
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -47,7 +60,7 @@
             
             <div id="step-1" class="step-container active">
                 <h2>Comencemos por ti</h2>
-                <p>Selecciona tu fuente de ingresos principal para adaptar el formulario.</p>
+                <p>Selecciona tu fuente de ingresos principal para decirte qué documentos necesitamos.</p>
                 
                 <div class="profile-selector">
                     <label><input type="radio" name="perfil" value="dependiente" onchange="setPerfil('dependiente')" checked><span>Dependiente (Contrato)</span></label>
@@ -143,23 +156,28 @@
             </div>
 
             <div id="step-3" class="step-container">
-                <h2>Documentación de Respaldo</h2>
-                <p>Para perfil <strong><span id="perfil-label"></span></strong>:</p>
+                <h2>Respaldo Documental</h2>
                 
-                <ul class="checklist doc-list" id="dynamic-doc-list"></ul>
+                <div class="doc-guide">
+                    ⚠️ <strong>Importante:</strong> Según tu perfil de <strong><span id="perfil-display"></span></strong>, el banco exige los siguientes documentos para evaluar tu riesgo.
+                </div>
+
+                <ul class="requirements-list" id="dynamic-doc-list">
+                    </ul>
 
                 <div class="input-group" style="margin-top:30px; border:2px dashed #00B2A9; padding:30px; text-align:center; background:rgba(0,178,169,0.05); border-radius:10px;">
                     <label for="fileInput" style="cursor:pointer; width:100%; display:block;">
-                        <strong style="font-size:1.1em;">📎 SELECCIONAR ARCHIVOS</strong><br>
-                        <span style="font-size:0.9em; color:#666;">Sube PDFs o Fotos claras</span>
+                        <strong style="font-size:1.1em; color:#00B2A9;">📂 TOCAR AQUÍ PARA SUBIR</strong><br>
+                        <span style="font-size:0.9em; color:#666;">Selecciona todos los archivos de la lista (PDF o Fotos)</span>
                     </label>
                     <input type="file" id="fileInput" multiple style="display:none;" onchange="showFiles()">
                 </div>
-                <div id="fileList" style="margin-top:15px; font-size:0.9em;"></div>
+                
+                <div id="fileList" style="margin-top:15px; font-size:0.9em; padding:10px; background:#f1f1f1; border-radius:8px; display:none;"></div>
 
                 <div class="form-navigation-buttons">
                     <button type="button" class="form-nav-btn secondary" onclick="nextStep(2)">Atrás</button>
-                    <button type="submit" id="btnSubmit" class="btn-main">ENVIAR A REVISIÓN</button>
+                    <button type="submit" id="btnSubmit" class="btn-main" style="background:var(--brand-dark);">ENVIAR A REVISIÓN</button>
                 </div>
             </div>
         </form>
@@ -171,80 +189,100 @@
         const API_URL = CONFIG.API_URL;
         let currentPerfil = 'dependiente';
 
-        // Lógica de Campos Dinámicos
+        const REQUISITOS = {
+            dependiente: [
+                { t: "Cédula de Identidad", d: "Por ambos lados, vigente." },
+                { t: "Liquidaciones de Sueldo", d: "Las 3 últimas si es renta fija, o 6 si es variable." },
+                { t: "Certificado AFP", d: "De los últimos 24 meses (con RUT empleador)." },
+                { t: "Certificado CMF", d: "Informe de Deudas gratuito (cmfchile.cl)." },
+                { t: "Acreditación Domicilio", d: "Boleta de servicio o casa comercial a tu nombre." }
+            ],
+            independiente: [
+                { t: "Cédula de Identidad", d: "Por ambos lados, vigente." },
+                { t: "Carpeta Tributaria", d: "Para créditos (se saca en sii.cl)." },
+                { t: "Formulario 22", d: "Declaración de renta últimos 2 años." },
+                { t: "Boletas de Honorarios", d: "Resumen anual o últimos 6 meses." },
+                { t: "Certificado CMF", d: "Informe de Deudas." },
+                { t: "Acreditación Domicilio", d: "Boleta de servicio." }
+            ],
+            empresa: [
+                { t: "Cédula Socio", d: "Por ambos lados." },
+                { t: "Carpeta Tributaria Empresa", d: "Para créditos." },
+                { t: "F22 (Renta)", d: "De la empresa y del socio (últimos 2 años)." },
+                { t: "Balances", d: "Últimos 2 periodos (firmados)." },
+                { t: "Malla Societaria", d: "Escritura o certificado de vigencia." },
+                { t: "Certificado CMF", d: "De la empresa." }
+            ],
+            otro: [
+                { t: "Cédula de Identidad", d: "Vigente." },
+                { t: "Acreditación Ingresos", d: "Cartolas de inversión, jubilación, etc." },
+                { t: "Certificado CMF", d: "Informe de Deudas." }
+            ]
+        };
+
         function setPerfil(p) {
             currentPerfil = p;
-            document.getElementById('perfil-label').innerText = p.toUpperCase();
-            
-            // Ocultar todos los laborales
+            document.getElementById('perfil-display').innerText = p.toUpperCase();
             document.querySelectorAll('.dynamic-field').forEach(el => el.style.display = 'none');
-            
-            // Mostrar el seleccionado
-            if(document.getElementById(`sec-${p}`)) {
-                document.getElementById(`sec-${p}`).style.display = 'block';
-            }
-            
+            if(document.getElementById(`sec-${p}`)) document.getElementById(`sec-${p}`).style.display = 'block';
             updateChecklist();
         }
-
-        // Inicializar
-        const params = new URLSearchParams(window.location.search);
-        if(params.get('email')) document.getElementById('email_cliente').value = params.get('email');
-        setPerfil('dependiente'); // Default
-
-        // Navegación
-        function nextStep(n) {
-            if (n === 2 && !document.getElementById('email_cliente').value) { alert("Confirma tu email."); return; }
-            if (n === 3 && !document.getElementById('rut').value) { alert("Ingresa tu RUT."); return; }
-            
-            document.querySelectorAll('.step-container').forEach(s => s.classList.remove('active'));
-            document.getElementById(`step-${n}`).classList.add('active');
-            
-            // Actualizar barra color
-            for(let i=1; i<=3; i++) document.getElementById(`prog-${i}`).style.color = (n >= i) ? 'var(--brand-accent)' : '#aaa';
-        }
-
-        // Checklist Docs
-        const REQUISITOS = {
-            dependiente: ["Cédula (Ambos lados)", "3 últimas Liquidaciones", "Certificado AFP (12 meses)", "Certificado CMF (Deudas)", "Comp. Domicilio"],
-            independiente: ["Cédula Identidad", "Carpeta Tributaria", "F22 (2 años)", "Boletas (6 meses)", "Certificado CMF"],
-            empresa: ["Cédula Socio", "Carpeta Tributaria Empresa", "Balances (2 años)", "F22 Empresa", "Certificado CMF"],
-            otro: ["Cédula Identidad", "Acreditación Ingresos", "Certificado CMF"]
-        };
 
         function updateChecklist() {
             const list = document.getElementById('dynamic-doc-list');
             list.innerHTML = "";
-            REQUISITOS[currentPerfil].forEach(req => list.innerHTML += `<li class="required">📄 ${req}</li>`);
-            list.innerHTML += `<li style="border-left-color:green;">✅ <strong>Estado de Situación:</strong> Generado automáticamente.</li>`;
+            REQUISITOS[currentPerfil].forEach(req => {
+                list.innerHTML += `
+                    <li>
+                        <span class="icon">📄</span>
+                        <div class="text">
+                            <span class="title">${req.t}</span>
+                            <span class="desc">${req.d}</span>
+                        </div>
+                    </li>
+                `;
+            });
         }
 
-        // Cálculos
-        function calcTotales() {
-            const val = (n) => Number(document.querySelector(`[name="${n}"]`)?.value) || 0;
-            const activos = val('activos_propiedades') + val('activos_vehiculos') + val('activos_inversiones');
-            const pasivos = val('pasivos_hipotecario_saldo') + val('pasivos_consumo_saldo') + val('pasivos_tarjetas_saldo');
-            
-            document.getElementById('total_activos').value = activos;
-            document.getElementById('total_pasivos').value = pasivos;
-            document.getElementById('patrimonio_display').innerText = "$ " + (activos - pasivos).toLocaleString('es-CL');
+        // Resto de la lógica (Sin cambios mayores)
+        const params = new URLSearchParams(window.location.search);
+        if(params.get('email')) document.getElementById('email_cliente').value = params.get('email');
+        setPerfil('dependiente');
+
+        function nextStep(n) {
+            if (n === 2 && !document.getElementById('email_cliente').value) { alert("Confirma tu email."); return; }
+            if (n === 3 && !document.getElementById('rut').value) { alert("Ingresa tu RUT."); return; }
+            document.querySelectorAll('.step-container').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step-${n}`).classList.add('active');
+            for(let i=1; i<=3; i++) document.getElementById(`prog-${i}`).style.color = (n >= i) ? 'var(--brand-accent)' : '#aaa';
         }
 
-        // RUT
         function checkRut(rut) {
             let v = rut.value.replace(/[^0-9kK]/g, '');
             if(v.length > 1) rut.value = v.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '-' + v.slice(-1).toUpperCase();
         }
 
-        function showFiles() {
-            const input = document.getElementById('fileInput');
-            if(input.files.length > 0) document.getElementById('fileList').innerHTML = "📄 " + input.files.length + " archivos listos.";
+        function calcTotales() {
+            const val = (n) => Number(document.querySelector(`[name="${n}"]`)?.value) || 0;
+            const activos = val('activos_propiedades') + val('activos_vehiculos') + val('activos_inversiones');
+            const pasivos = val('pasivos_hipotecario_saldo') + val('pasivos_consumo_saldo') + val('pasivos_tarjetas_saldo');
+            document.getElementById('total_activos').value = activos;
+            document.getElementById('total_pasivos').value = pasivos;
+            document.getElementById('patrimonio_display').innerText = "$ " + (activos - pasivos).toLocaleString('es-CL');
         }
 
-        // Envío
+        function showFiles() {
+            const input = document.getElementById('fileInput');
+            const list = document.getElementById('fileList');
+            if (input.files.length > 0) {
+                list.style.display = 'block';
+                list.innerHTML = "<strong>Archivos listos para subir:</strong><br>" + Array.from(input.files).map(f => `📎 ${f.name}`).join('<br>');
+            }
+        }
+
         document.getElementById('mainForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(document.getElementById('fileInput').files.length === 0) { alert("Sube los documentos."); return; }
+            if(document.getElementById('fileInput').files.length === 0) { alert("Sube los documentos requeridos."); return; }
             document.getElementById('loadingOverlay').style.display = 'flex';
 
             try {
